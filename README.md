@@ -1,8 +1,10 @@
-# xSQLi
+# xSQLi(BETA) need to improve many things...
+
+There is nothing in this script... :)
 
 root@blackHat:~/xSQLi# python3 xSQLi.py 
 
- Injection Ponit : https://www.target.com/index.php?id=inject
+ Injection Ponit : https://www.target.com/index.php?id=1inject //write "inject" in parameter where you want to inject query.
  
  (table/column)? : table //What You Want To Dump?
  
