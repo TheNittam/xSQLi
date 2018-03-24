@@ -1,5 +1,7 @@
 # xSQLi(BETA) need to improve many things...
 
+This Tool Is Made For Security Testing Purpose. Do Not Attack Unauthorized Web Applications If Anything Goes Wrong I Am Not Responsible For The Misuse Of This Tool.
+
 There is nothing in this script... :)
 
 root@blackHat:~/xSQLi# python3 xSQLi.py 
